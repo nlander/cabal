@@ -2473,7 +2473,7 @@ installLib
 installLib verbosity lbi targetDir dynlibTargetDir _builtDir pkg lib clbi = do
   -- copy .hi files over:
   whenVanilla $ copyModuleFiles "hi"
-  whenVanilla $ copyModuleFiles "hie"
+  whenHie $ copyModuleFiles "hie"
   whenProf $ copyModuleFiles "p_hi"
   whenShared $ copyModuleFiles "dyn_hi"
 
@@ -2595,6 +2595,12 @@ installLib verbosity lbi targetDir dynlibTargetDir _builtDir pkg lib clbi = do
     has_code = not (componentIsIndefinite clbi)
     whenHasCode = when has_code
     whenVanilla = when (hasLib && withVanillaLib lbi)
+    whenHie = when (hasLib && withVanillaLib lbi && hasIdeFlag)
+    hasIdeFlag = case library pkg of
+      Nothing -> False
+      Just pkgLib -> case options (libBuildInfo pkgLib) of
+        PerCompilerFlavor compilerFlags _ ->
+          "-fwrite-ide-info" `elem` compilerFlags
     whenProf = when (hasLib && withProfLib lbi && has_code)
     whenGHCi = when (hasLib && withGHCiLib lbi && has_code)
     whenShared = when (hasLib && withSharedLib lbi && has_code)
