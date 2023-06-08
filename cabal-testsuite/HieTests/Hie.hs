@@ -1,2 +1,3 @@
 module Hie where
-hie = "INSTALL ME"
+import HieDependency (hieDependency)
+hie = hieDependency

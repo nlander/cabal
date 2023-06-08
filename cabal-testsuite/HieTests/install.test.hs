@@ -1,9 +1,8 @@
 import Distribution.Simple.LocalBuildInfo (absoluteInstallDirs, libdir, localPkgDescr, CopyDest(NoCopyDest))
 import Test.Cabal.Prelude
 
-main = setupAndCabalTest $ do
-    withPackageDb $ do
-        setup_install []
-        lbi <- getLocalBuildInfoM
-        let installedLibPath = libdir $ absoluteInstallDirs (localPkgDescr lbi) lbi NoCopyDest
-	shouldExist $ installedLibPath </> "Hie.hie"
+main = cabalTest $ withRepo "repo" $ do
+  cabal "v2-build" ["hie"]
+  lbi <- getLocalBuildInfoM
+  let installedLibPath = libdir $ absoluteInstallDirs (localPkgDescr lbi) lbi NoCopyDest
+  shouldExist $ installedLibPath </> "Hie.hie"
