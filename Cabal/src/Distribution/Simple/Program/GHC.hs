@@ -17,6 +17,8 @@ module Distribution.Simple.Program.GHC
   , normaliseGhcArgs
   ) where
 
+import qualified Debug.Pretty.Simple as Debug
+
 import Distribution.Compat.Prelude
 import Prelude ()
 
@@ -626,6 +628,10 @@ ghcInvocation prog comp platform opts =
     { progInvokePathEnv = fromNubListR (ghcOptExtraPath opts)
     }
 
+examineGhcOptions :: GhcOptions -> String
+examineGhcOptions opts = "\n\n\n!!!!!!!!!!!!!!!!!!!!!!\n" ++ 
+  show opts ++ "\n!!!!!!!!!!!!!!!!!!!!!\n\n\n"
+
 renderGhcOptions :: Compiler -> Platform -> GhcOptions -> [String]
 renderGhcOptions comp _platform@(Platform _arch os) opts
   | compilerFlavor comp `notElem` [GHC, GHCJS] =
@@ -634,7 +640,7 @@ renderGhcOptions comp _platform@(Platform _arch os) opts
           ++ "compiler flavor must be 'GHC' or 'GHCJS'!"
   | otherwise =
       concat
-        [ case flagToMaybe (ghcOptMode opts) of
+        [ case flagToMaybe (ghcOptMode (Debug.pTraceWith examineGhcOptions opts)) of
             Nothing -> []
             Just GhcModeCompile -> ["-c"]
             Just GhcModeLink -> []
